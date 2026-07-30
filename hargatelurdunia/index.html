@@ -1,1 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Egg prices &amp; minimum wages, 2025/2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
+  :root{
+    --bg: #201f1c;
+    --panel: #2a2925;
+    --panel-2: #34322d;
+    --hair: #46443d;
+    --ink: #f2ede1;
+    --ink-dim: #a9a498;
+    --ink-faint: #77736a;
+    --yolk: #f2b632;
+    --yolk-dark: #7a4a05;
+
+    --c-europe: #a9d0e0;
+    --c-europe-d: #0f3a4c;
+    --c-asia: #e7b5c9;
+    --c-asia-d: #55112a;
+    --c-africa: #f0c987;
+    --c-africa-d: #5c3a05;
+    --c-namerica: #b9dba0;
+    --c-namerica-d: #274a10;
+    --c-samerica: #c9b6ea;
+    --c-samerica-d: #341f5c;
+    --c-oceania: #f3a487;
+    --c-oceania-d: #5c1e0a;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 40px 20px 60px;
+  }
+
+  .wrap{ max-width: 920px; margin: 0 auto; }
+
+  header{ margin-bottom: 28px; }
+
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--yolk);
+    margin: 0 0 10px;
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 4.5vw, 42px);
+    line-height: 1.1;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .sub{
+    color: var(--ink-dim);
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 640px;
+    margin: 0;
+  }
+
+  .controls{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin: 30px 0 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .control-group label{
+    display:block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  .seg{
+    display:inline-flex;
+    background: var(--panel);
+    border: 1px solid var(--hair);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .seg button{
+    appearance:none;
+    border:none;
+    background: transparent;
+    color: var(--ink-dim);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 15px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease;
+    white-space: nowrap;
+  }
+
+  .seg button:hover{ color: var(--ink); }
+
+  .seg button.active{
+    background: var(--yolk);
+    color: #3a2400;
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip{
+    appearance:none;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    background: var(--panel);
+    border: 1px solid var(--hair);
+    color: var(--ink-dim);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    padding: 6px 12px 6px 9px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: opacity .18s ease, border-color .18s ease;
+  }
+
+  .chip .dot{
+    width:9px; height:9px; border-radius:50%; flex-shrink:0;
+  }
+
+  .chip.off{ opacity: 0.35; }
+
+  .chip:hover{ border-color: var(--ink-faint); }
+
+  .count{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+  }
+
+  .chart{
+    position: relative;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns: 132px 1fr;
+    align-items:center;
+    gap: 14px;
+    padding: 5px 0;
+    transition: opacity .25s ease;
+  }
+
+  .row.hidden{ display:none; }
+
+  .row.dim{ opacity: 0.25; }
+
+  .name{
+    font-size: 13px;
+    color: var(--ink);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .name .rank{
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--ink-faint);
+    font-size: 10.5px;
+    margin-right: 6px;
+  }
+
+  .track{
+    position: relative;
+    height: 22px;
+    background: var(--panel);
+    border-radius: 999px;
+  }
+
+  .fill{
+    position: absolute;
+    top:0; left:0; bottom:0;
+    border-radius: 999px;
+    transition: width .55s cubic-bezier(.4,0,.2,1);
+  }
+
+  .yolk-badge{
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    transition: left .55s cubic-bezier(.4,0,.2,1);
+    background: var(--yolk);
+    color: var(--yolk-dark);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    box-shadow: 0 0 0 3px var(--bg);
+    pointer-events: none;
+  }
+
+  .row:hover .track{ background: var(--panel-2); }
+
+  footer{
+    margin-top: 34px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hair);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    line-height: 1.7;
+  }
+
+  ::-webkit-scrollbar{ width: 8px; }
+  ::-webkit-scrollbar-thumb{ background: var(--hair); border-radius: 4px; }
+
+  @media (max-width: 560px){
+    .row{ grid-template-columns: 92px 1fr; gap: 8px; }
+    .name{ font-size: 11.5px; }
+    .controls{ flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">79 countries &middot; Jan 2026</p>
+    <h1>What a dozen eggs costs you, in wages</h1>
+    <p class="sub">Egg prices and monthly minimum wages by country, converted to USD. Sort the carton below by minimum wage, egg price, or egg&#8209;buying power &mdash; how many eggs a month of minimum&#8209;wage work actually buys.</p>
+  </header>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Sort by</label>
+      <div class="seg" id="sortSeg">
+        <button data-metric="minWage" class="active">Minimum wage</button>
+        <button data-metric="eggPrice">Egg price</button>
+        <button data-metric="buyingPower">Buying power</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Continent &middot; click to filter</label>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <p class="count" id="count"></p>
+
+  <div class="chart" id="chart"></div>
+
+  <footer>
+    Egg prices &mdash; GlobalProductPrices.com (Jan 2026). Minimum wages &mdash; WageIndicator, WorldPopulationReview, Deel, Playroll, Eurofound and national sources (2025&ndash;2026). Some wages reflect collective&#8209;bargaining sector floors where no statutory minimum exists. Buying power = eggs affordable per month on one month's minimum wage.
+  </footer>
+
+</div>
+
+<script>
+const CONTINENTS = {
+  europe:   { label: "Europe",        fill: "var(--c-europe)",   text: "var(--c-europe-d)" },
+  asia:     { label: "Asia",          fill: "var(--c-asia)",     text: "var(--c-asia-d)" },
+  africa:   { label: "Africa",        fill: "var(--c-africa)",   text: "var(--c-africa-d)" },
+  namerica: { label: "North America", fill: "var(--c-namerica)", text: "var(--c-namerica-d)" },
+  samerica: { label: "South America", fill: "var(--c-samerica)", text: "var(--c-samerica-d)" },
+  oceania:  { label: "Oceania",       fill: "var(--c-oceania)",  text: "var(--c-oceania-d)" }
+};
+
+const DATA = [
+["Switzerland","europe",8.12,4675.0,575.7],
+["Norway","europe",7.18,1869.0,260.3],
+["Australia","oceania",7.18,2691.0,374.8],
+["New Zealand","oceania",7.06,2316.0,328.0],
+["Uruguay","samerica",6.25,605.0,96.8],
+["Czechia","europe",5.17,1094.9,211.8],
+["Sweden","europe",5.04,2439.0,483.9],
+["Belgium","europe",5.02,2502.6,498.5],
+["Denmark","europe",4.91,2250.0,458.2],
+["Austria","europe",4.90,1651.0,336.9],
+["UK","europe",4.87,2849.0,585.0],
+["Ireland","europe",4.78,2879.5,602.4],
+["Hong Kong","asia",4.71,530.0,112.5],
+["Italy","europe",4.65,1470.0,316.1],
+["Germany","europe",4.62,2829.4,612.4],
+["USA","namerica",4.62,1256.2,271.9],
+["Greece","europe",4.57,1216.9,266.3],
+["Israel","asia",4.47,1680.2,375.9],
+["Ghana","africa",4.46,32.0,7.2],
+["France","europe",4.27,2160.1,505.9],
+["Slovakia","europe",4.20,1084.2,258.1],
+["Lithuania","europe",4.20,1366.2,325.3],
+["Latvia","europe",4.06,924.3,227.7],
+["Romania","europe",4.04,942.0,233.2],
+["Poland","europe",3.96,1349.6,340.8],
+["Chile","samerica",3.96,555.5,140.3],
+["Finland","europe",3.82,1613.0,422.3],
+["Spain","europe",3.80,1636.4,430.6],
+["Hungary","europe",3.80,993.0,261.3],
+["Portugal","europe",3.61,1271.4,352.2],
+["Puerto Rico","namerica",3.58,1680.0,469.3],
+["Morocco","africa",3.51,332.5,94.7],
+["Netherlands","europe",3.45,2249.0,651.9],
+["Croatia","europe",3.44,1244.2,361.7],
+["South Africa","africa",3.20,268.8,84.0],
+["Mexico","namerica",3.16,330.0,104.4],
+["South Korea","asia",3.04,1182.0,388.8],
+["Japan","asia",2.96,1244.7,420.5],
+["Slovenia","europe",2.93,1514.3,516.8],
+["Canada","namerica",2.89,2191.6,758.3],
+["Colombia","samerica",2.73,384.4,140.8],
+["UA Emirates","asia",2.72,1634.0,600.7],
+["Ivory Coast","africa",2.71,124.2,45.8],
+["Singapore","asia",2.68,1415.0,528.0],
+["Nigeria","africa",2.66,45.5,17.1],
+["Malaysia","asia",2.60,430.5,165.6],
+["Serbia","europe",2.57,881.6,343.0],
+["Thailand","asia",2.54,252.6,99.4],
+["Jordan","asia",2.54,409.0,161.0],
+["Peru","samerica",2.49,331.8,133.3],
+["Turkey","asia",2.47,759.4,307.4],
+["Brazil","samerica",2.42,303.8,125.5],
+["Tanzania","africa",2.37,32.0,13.5],
+["Saudi Arabia","asia",2.34,1067.0,456.0],
+["Ecuador","samerica",2.33,482.0,206.9],
+["Cameroon","africa",2.32,60.1,25.9],
+["China","asia",2.28,391.7,171.8],
+["Philippines","asia",2.23,254.6,114.2],
+["Russia","europe",2.21,242.5,109.7],
+["Kuwait","asia",2.21,195.4,88.4],
+["Ukraine","europe",2.10,202.9,96.6],
+["Vietnam","asia",2.10,212.4,101.1],
+["Paraguay","samerica",2.09,405.9,194.2],
+["Tunisia","africa",2.01,149.0,74.1],
+["Dominican Republic","namerica",2.01,269.9,134.3],
+["Costa Rica","namerica",1.94,726.0,374.2],
+["India","asia",1.89,43.2,22.9],
+["Kenya","africa",1.89,116.9,61.9],
+["Guatemala","namerica",1.89,513.1,271.5],
+["Uganda","africa",1.83,35.1,19.2],
+["Bolivia","samerica",1.81,469.0,259.1],
+["Kazakhstan","asia",1.80,161.5,89.7],
+["Azerbaijan","asia",1.80,235.3,130.7],
+["Indonesia","asia",1.79,343.8,192.1],
+["Zambia","africa",1.77,52.8,29.8],
+["Sri Lanka","asia",1.69,56.5,33.4],
+["Egypt","africa",1.57,146.7,93.4],
+["Bangladesh","asia",1.55,101.5,65.5],
+["Pakistan","asia",1.40,129.9,92.8]
+].map(([name, continent, eggPrice, minWage, buyingPower]) => ({name, continent, eggPrice, minWage, buyingPower}));
+
+const METRICS = {
+  minWage:     { label: "Minimum wage", fmt: v => "$" + Math.round(v).toLocaleString() + "/mo", key: "minWage" },
+  eggPrice:    { label: "Egg price",    fmt: v => "$" + v.toFixed(2) + "/dz", key: "eggPrice" },
+  buyingPower: { label: "Buying power", fmt: v => Math.round(v).toLocaleString() + " eggs/mo", key: "buyingPower" }
+};
+
+const maxes = {
+  minWage: Math.max(...DATA.map(d => d.minWage)),
+  eggPrice: Math.max(...DATA.map(d => d.eggPrice)),
+  buyingPower: Math.max(...DATA.map(d => d.buyingPower))
+};
+
+let currentMetric = "minWage";
+const activeContinents = new Set(Object.keys(CONTINENTS));
+
+const legendEl = document.getElementById("legend");
+Object.entries(CONTINENTS).forEach(([key, c]) => {
+  const chip = document.createElement("button");
+  chip.className = "chip";
+  chip.dataset.continent = key;
+  chip.innerHTML = `<span class="dot" style="background:${c.fill}"></span>${c.label}`;
+  chip.addEventListener("click", () => {
+    if (activeContinents.has(key)) {
+      if (activeContinents.size === 1) return;
+      activeContinents.delete(key);
+      chip.classList.add("off");
+    } else {
+      activeContinents.add(key);
+      chip.classList.remove("off");
+    }
+    render();
+  });
+  legendEl.appendChild(chip);
+});
+
+const chartEl = document.getElementById("chart");
+const countEl = document.getElementById("count");
+const rowEls = new Map();
+
+DATA.forEach(d => {
+  const c = CONTINENTS[d.continent];
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML = `
+    <div class="name"><span class="rank"></span>${d.name}</div>
+    <div class="track">
+      <div class="fill" style="background:${c.fill}"></div>
+      <div class="yolk-badge"></div>
+    </div>
+  `;
+  chartEl.appendChild(row);
+  rowEls.set(d.name, row);
+});
+
+document.getElementById("sortSeg").addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  currentMetric = btn.dataset.metric;
+  document.querySelectorAll("#sortSeg button").forEach(b => b.classList.toggle("active", b === btn));
+  render();
+});
+
+function render(){
+  const metric = METRICS[currentMetric];
+  const max = maxes[currentMetric];
+
+  const visible = DATA.filter(d => activeContinents.has(d.continent));
+  const sorted = [...visible].sort((a, b) => b[metric.key] - a[metric.key]);
+  const order = new Map(sorted.map((d, i) => [d.name, i]));
+
+  countEl.textContent = `${visible.length} of ${DATA.length} countries \u2014 sorted by ${metric.label.toLowerCase()}`;
+
+  DATA.forEach(d => {
+    const row = rowEls.get(d.name);
+    const isVisible = activeContinents.has(d.continent);
+    row.classList.toggle("hidden", !isVisible);
+    if (!isVisible) return;
+
+    row.style.order = order.get(d.name);
+    const pct = Math.max(4, (d[metric.key] / max) * 100);
+    const fill = row.querySelector(".fill");
+    const badge = row.querySelector(".yolk-badge");
+    const rank = row.querySelector(".rank");
+    fill.style.width = pct + "%";
+    badge.style.left = pct + "%";
+    badge.textContent = metric.fmt(d[metric.key]);
+    rank.textContent = "#" + (order.get(d.name) + 1);
+  });
+
+  chartEl.style.display = "flex";
+  chartEl.style.flexDirection = "column";
+}
+
+render();
+</script>
+</body>
+</html>
